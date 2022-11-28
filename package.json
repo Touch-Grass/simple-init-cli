@@ -1,0 +1,24 @@
+{
+  "name": "test-cli",
+  "version": "1.0.0",
+  "main": "./bin/project-scaffolding/index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "bin": {
+    "init": "bin/project-scaffolding/index.mjs"
+  },
+  "dependencies": {
+    "boxen": "4.0",
+    "chalk": "2.4",
+    "yargs": "13.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "@types/yargs": "^17.0.14"
+  },
+  "keywords": [],
+  "description": ""
+}
