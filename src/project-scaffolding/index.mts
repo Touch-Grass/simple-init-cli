@@ -2,25 +2,6 @@
 
 import { exec } from 'child_process';
 
-// exec('ls -a', (error, stdout, stderr) => {
-//   if (error) {
-//     console.log(`error: ${error.message}`);
-//     return;
-//   }
-//   if (stderr) {
-//     console.log(`stderr: ${stderr}`);
-//     return;
-//   }
-//   console.log(`stdout: ${stdout}`);
-// });
-
-exec('npm init -y', () => {
-  exec(
-    'npm install gulp gulp-replace gulp-uglify gulp-concat gulp-ignore',
-    () => {}
-  );
-});
-
 import fs from 'fs';
 import yargs from 'yargs';
 import chalk from 'chalk';
@@ -36,7 +17,7 @@ const parser = yargs(process.argv.slice(2)).options({
     type: 'string',
     demandOption: true,
     alias: 'type',
-    choices: ['typescript', 'javascript'],
+    choices: ['typescript', 'javascript', 'bookmarklet'],
   },
 
   c: {
@@ -61,29 +42,64 @@ const initProject = async (): Promise<void> => {
     const scriptType = type.get(argv.t) as string;
     const styleType = type.get(argv.c) as string;
 
-    // Project folder
-    createFolder('./', `${argv.n}`).then(async folderPath => {
-      chalk.default.green(`Created folder ${folderPath}`);
-      createFolder(folderPath, 'src').then(async srcPath => {
-        createFolder(srcPath, 'ts').then(async tsPath => {
-          createFile(
-            tsPath,
-            'index',
-            scriptType,
-            'console.log("Hello World");'
+    switch (argv.t) {
+      case 'typescript':
+        createFolder('./', `${argv.n}`).then(async folderPath => {
+          chalk.default.green(`Created folder ${folderPath}`);
+          exec(
+            'npm init -y && npm i -D prettier && npm i -D gulp && npm i -D gulp-replace && npm i -D gulp-uglify && npm i -D gulp-concat && npm i -D gulp-ignore',
+            {
+              cwd: `${folderPath}`,
+            },
+            () => {}
           );
+          createFolder(folderPath, 'src').then(async srcPath => {
+            createFolder(srcPath, 'ts').then(async tsPath => {
+              createFile(
+                tsPath,
+                'index',
+                scriptType,
+                'console.log("Hello World");'
+              );
+            });
+            createFolder(srcPath, styleType).then(async cssPath => {
+              createFile(cssPath, 'main', styleType, '');
+            });
+          });
+          createFile(folderPath, 'index', 'html', html_text);
+          createFile(folderPath, '.prettierrc', 'json', prettier_text);
         });
-        // Css folder
-        createFolder(srcPath, styleType).then(async cssPath => {
-          createFile(cssPath, 'main', styleType, '');
+        break;
+
+      case 'javascript':
+        createFolder('./', `${argv.n}`).then(async folderPath => {
+          chalk.default.green(`Created folder ${folderPath}`);
+          createFolder(folderPath, 'assets').then(async assetsPath => {
+            createFolder(assetsPath, scriptType).then(async jsPath => {
+              createFile(
+                jsPath,
+                'index',
+                scriptType,
+                'console.log("Hello World");'
+              );
+            });
+            createFolder(assetsPath, styleType).then(async cssPath => {
+              createFile(cssPath, 'main', styleType, '');
+            });
+          });
+          createFile(folderPath, 'index', 'html', html_text);
+          createFile(folderPath, '.prettierrc', 'json', prettier_text);
         });
-      });
-      createFolder(folderPath, 'dist').then(async () => {});
-      createFile(folderPath, 'index', 'html', html_text);
-      createFile(folderPath, '.prettierrc', 'json', prettier_text);
-      createFile(folderPath, 'gulpfile', 'js', gulp_text);
-      createFile(folderPath, 'tsconfig', 'json', tsconfig);
-    });
+        break;
+
+      case 'bookmarklet':
+        createFile('./', `${argv.n}`, 'js', 'console.log("Hello World");');
+        createFile('./', `${argv.n}`, 'html', html_text);
+        break;
+
+      default:
+        break;
+    }
   } catch (err) {
     console.log(err);
   }
