@@ -15,7 +15,7 @@ export const createFile = async (
       'utf8'
     );
   } catch (err) {
-    throw err;
+    throw new Error(err as string);
   }
 };
 
@@ -24,6 +24,6 @@ export const createFolder = async (location: string, name: string) => {
     await fs.promises.mkdir(`${location}/${name}`);
     return `${location}/${name}`;
   } catch (err) {
-    throw err;
+    throw new Error(err as string);
   }
 };

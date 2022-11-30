@@ -4,7 +4,7 @@ export const createFile = async (location, name, type, text) => {
         return await fs.promises.writeFile(`${location}/${name}.${type}`, `${text}`, 'utf8');
     }
     catch (err) {
-        throw err;
+        throw new Error(err);
     }
 };
 export const createFolder = async (location, name) => {
@@ -13,6 +13,6 @@ export const createFolder = async (location, name) => {
         return `${location}/${name}`;
     }
     catch (err) {
-        throw err;
+        throw new Error(err);
     }
 };

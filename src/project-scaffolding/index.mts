@@ -2,13 +2,11 @@
 
 import { exec } from 'child_process';
 
-import fs from 'fs';
 import yargs from 'yargs';
 import chalk from 'chalk';
 import { createFile, createFolder } from './Helper.mjs';
 import { prettier_text } from './text/prettierrc.mjs';
 import { html_text } from './text/indexhtml.mjs';
-import { gulp_text } from './text/gulpfile.mjs';
 import { tsconfig } from './text/tsconfig.mjs';
 
 const parser = yargs(process.argv.slice(2)).options({
@@ -17,7 +15,7 @@ const parser = yargs(process.argv.slice(2)).options({
     type: 'string',
     demandOption: true,
     alias: 'type',
-    choices: ['typescript', 'javascript', 'bookmarklet'],
+    choices: ['typescript', 'javascript', 'bookmarklet', 'tsbookmarklet'],
   },
 
   c: {
@@ -31,6 +29,9 @@ const parser = yargs(process.argv.slice(2)).options({
 const type = new Map([
   ['typescript', 'ts'],
   ['javascript', 'js'],
+  ['bookmarklet', 'js'],
+  ['tsbookmarklet', 'ts'],
+
   ['css', 'css'],
   ['scss', 'scss'],
   ['sass', 'sass'],
@@ -93,15 +94,39 @@ const initProject = async (): Promise<void> => {
         break;
 
       case 'bookmarklet':
-        createFile('./', `${argv.n}`, 'js', 'console.log("Hello World");');
-        createFile('./', `${argv.n}`, 'html', html_text);
+        createFolder('./', `${argv.n}`).then(async folderPath => {
+          createFile(
+            folderPath,
+            'index',
+            scriptType,
+            'console.log("Hello World");'
+          );
+          createFile(folderPath, 'index', 'html', html_text);
+        });
+
+        break;
+
+      case 'tsbookmarklet':
+        createFolder('./', `${argv.n}`).then(async folderPath => {
+          createFolder(folderPath, 'src').then(async srcPath => {
+            createFile(
+              srcPath,
+              'index',
+              scriptType,
+              'console.log("Hello World");'
+            );
+          });
+          createFolder(folderPath, 'dist').then(async () => {});
+          createFile(folderPath, 'index', 'html', html_text);
+          createFile(folderPath, 'tsconfig.json', 'json', tsconfig);
+        });
         break;
 
       default:
         break;
     }
   } catch (err) {
-    console.log(err);
+    throw new Error(err as string);
   }
 };
 
